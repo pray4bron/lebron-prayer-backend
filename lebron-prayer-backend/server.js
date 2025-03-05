@@ -5,17 +5,18 @@ const rateLimit = require("express-rate-limit");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Trust Render's proxy so rate-limiting works correctly
+// ✅ Trust Render's proxy to get real client IPs
 app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(cors()); // Enable CORS so frontend can communicate with backend
 
-// ✅ Rate limiter: Allow 1 prayer per IP per day
+// ✅ Rate limiter: Allow 1 prayer per user per day (using real IP)
 const prayerLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours
-  max: 1, // 1 request per day per IP
+  max: 1, // 1 request per day per unique IP
   message: { error: "You can only pray once per day. 🙏" },
+  keyGenerator: (req) => req.ip, // ✅ Ensure rate limit works per unique user IP
 });
 
 let prayerCount = 0; // Store prayer count in memory (resets if server restarts)
