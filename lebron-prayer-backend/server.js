@@ -1,35 +1,39 @@
 const express = require("express");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Enable CORS for your frontend
-app.use(cors());
-
-// Middleware to parse JSON
 app.use(express.json());
+app.use(cors()); // Enable CORS so frontend can communicate with backend
 
-// Store prayer count in memory (temporary, resets if the server restarts)
-let prayerCount = 0;
+// Rate limiter: Allow 1 prayer per IP per day
+const prayerLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  max: 1, // 1 request per day per IP
+  message: { error: "You can only pray once per day. 🙏" },
+});
 
-// ✅ Route to get the current prayer count
+let prayerCount = 0; // Store prayer count in memory (resets if server restarts)
+
+// Endpoint to get the current prayer count
 app.get("/prayers", (req, res) => {
-    res.json({ count: prayerCount });
+  res.json({ count: prayerCount });
 });
 
-// ✅ Route to increment the prayer count
-app.post("/pray", (req, res) => {
-    prayerCount++;
-    res.json({ success: true, count: prayerCount });
+// Endpoint to increment prayer count (with rate limiting)
+app.post("/pray", prayerLimiter, (req, res) => {
+  prayerCount++;
+  res.json({ count: prayerCount });
 });
 
-// ✅ Home route to confirm the server is running
+// Default route for checking if the backend is running
 app.get("/", (req, res) => {
-    res.send("LeBron Prayer Backend is Running 🙏");
+  res.send("LeBron Prayer Backend is Running 🙏");
 });
 
-// ✅ Start the server
+// Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
