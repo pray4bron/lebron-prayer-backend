@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Temporary prayer count (in-memory, resets when the server restarts)
+// Store prayer count in memory (temporary, resets if the server restarts)
 let prayerCount = 0;
 
 // Route to get the current prayer count
@@ -22,7 +22,7 @@ app.post("/pray", (req, res) => {
     res.json({ success: true, count: prayerCount });
 });
 
-// New route to handle "/" to fix "Cannot GET /"
+// Home route to confirm the server is running
 app.get("/", (req, res) => {
     res.send("LeBron Prayer Backend is Running 🙏");
 });
