@@ -4,8 +4,11 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// ✅ Enable CORS for your frontend
+app.use(cors({
+    origin: "https://pray4bron.github.io" // Allow frontend domain
+}));
+
 app.use(express.json());
 
 // Store prayer count in memory (temporary, resets if the server restarts)
