@@ -33,7 +33,19 @@ function savePrayers(count) {
   }
 }
 
-let prayerCount = loadPrayers();
+let prayerCount = 0; // Start with 0 in memory
+
+// ✅ Load prayer count asynchronously after the server starts
+fs.readFile(PRAYER_FILE, "utf8", (err, data) => {
+  if (!err) {
+    try {
+      prayerCount = JSON.parse(data).count || 0;
+      console.log(`✅ Loaded prayer count: ${prayerCount}`);
+    } catch (error) {
+      console.error("❌ Error parsing prayers.json:", error);
+    }
+  }
+});
 
 // ✅ Function to get real client IP
 const getClientIP = (req) => {
